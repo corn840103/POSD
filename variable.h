@@ -1,23 +1,91 @@
 #ifndef VARIABLE_H
 #define VARIABLE_H
-
 #include <string>
+#include <iostream>
 #include "term.h"
+#include "struct.h"
+
+
+
 using std::string;
+using std::to_string;
 
 class Variable : public Term{
-public:
-  Variable (string);
+	public:
+		Variable (string s) :_symbol(s),_assignValue(s){}
 
-  string symbol() const;
+		string symbol() const{
+			return _symbol;
+		}
 
-  string value() const;
+		string value() const{
+      if (assignable) {
+      	return _assignValue;
+      }
+			return termValue->value();
+		}
 
-  bool match(Term&);
+		bool isVar(){
+			return true;
+		}
 
- private:
-  string _symbol;
-  Term* _term;
+	  void findValue(Variable* v,Term *t){
+			for(unsigned int i = 0;i < v->have_match.size();i++){
+				if(v->have_match[i]->assignable == false)
+					break;
+				else{
+          v->have_match[i]->termValue = t;
+					v->have_match[i]->assignable = false;
+				}
+				findValue(v->have_match[i],t);
+			}
+		}
+
+		bool match(Term &t){
+			Variable *var = dynamic_cast<Variable*> (&t);
+			if(var){
+				have_match.push_back(var);
+        	var->have_match.push_back(this);
+				if(assignable && var->assignable){
+						_assignValue = var->_assignValue;
+				}
+				if(assignable && !var->assignable){
+					findValue(var,var);
+					return true;
+				}
+				if(!assignable && var->assignable){
+					findValue(this,this);
+					return true;
+				}
+				if(!assignable && !var->assignable){
+					return value() == t.value();
+				}
+				return true;
+			}
+			if(assignable && !var){
+				if(t.isList()){
+					if(t.match(*this)){
+						termValue = &t;
+						assignable = false;
+						findValue(this,&t);
+						return t.match(*this);
+					}
+					return t.match(*this);
+				}
+				termValue = &t;
+				assignable = false;
+				findValue(this,&t);
+				return true;
+			}else{
+        return value() == t.value();
+			}
+		}
+	private:
+		bool assignable = true;
+		string _symbol;
+		string _assignValue;
+		std::vector <Variable *> have_match;
+		Term *termValue;
 };
 
 #endif
