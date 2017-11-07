@@ -50,6 +50,10 @@ public:
   	   return true;
     }
 
+    bool isList(Term &term){
+      return true;
+    }
+
   bool match(Term & term){
     List *ls = dynamic_cast<List *> (&term);
     if(ls){

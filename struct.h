@@ -7,11 +7,15 @@
 class Struct : public Term{
 	public:
 		Struct (Atom const &name, std::vector<Term *> v):_name(name), _argc(v){}
+		Struct(Atom const &name):_name(name),_argc(){}
 		Atom const & name() {
 			return _name;
 		}
 		Term* args(int index){
 			return _argc[index];
+		}
+		int arity(){
+			return _argc.size();
 		}
 		bool match(Term &t){
 			Struct *st = dynamic_cast<Struct *> (&t);
@@ -32,18 +36,24 @@ class Struct : public Term{
 			return value() == t.value();
 		}
 		string symbol() const{
+			if(_argc.empty()){
+				return _name.symbol() + "()";
+			}
 			string sym = "";
 			for(unsigned int i = 0;i < _argc.size() - 1;i++){
-				sym += (_argc[i]->symbol() + ", ");
+				sym += (_argc[i]->symbol() + ", " );
 			}
-			return _name.symbol() + "(" + sym  + _argc[_argc.size() - 1]->symbol() + ")";
+			return _name.symbol() + "(" + sym + _argc[_argc.size() - 1]->symbol() + ")";
 		}
 		string value() const{
+			if(_argc.empty()){
+				return _name.symbol() + "()";
+			}
 			string sym = "";
-			for(unsigned int i = 0;i < _argc.size() - 1;i++){
+			for(unsigned int i = 0;i< _argc.size() - 1;i++){
 				sym += (_argc[i]->value() + ", ");
 			}
-			return _name.symbol() + "(" + sym  + _argc[_argc.size() - 1]->value() + ")";
+			return _name.symbol() + "(" + sym + _argc[_argc.size() - 1]->value() + ")";
 		}
 	private:
 		Atom _name;
