@@ -194,15 +194,14 @@ TEST_F(ParserTest, illegal1) {
 // And #symbol() of Struct should return ".(1, [])".
 // And the first term should be number: "1", the second term should be another Strcut: "[]".
 TEST_F(ParserTest, ListAsStruct) {
-  Scanner scanner(".(1,[])");
-  Parser parser(scanner);
-  Struct *s = dynamic_cast<Struct *> (parser.createTerm());
-  ASSERT_EQ(".(1,[])",s->symbol());
-  ASSERT_EQ(2,s->arity());
-  ASSERT_EQ("1",s->args(0)->symbol());
-  ASSERT_EQ("[]",s->args(1)->symbol());
+   Scanner scanner(".(1,[])");
+   Parser parser(scanner);
+   Struct *s = dynamic_cast<Struct *> (parser.createTerm());
+   ASSERT_EQ(".(1, [])", s->symbol());
+   ASSERT_EQ(2, s->arity());
+   ASSERT_EQ("1", s->args(0)->symbol());
+   ASSERT_EQ("[]", s->args(1)->symbol());
 }
-
 
 // Given there is string: ".(2,.(1,[]))" in scanner.
 // When parser parses all terms via scanner.
@@ -214,7 +213,7 @@ TEST_F(ParserTest, ListAsStruct2) {
   Scanner scanner(".(2,.(1,[]))");
   Parser parser(scanner);
   Struct *s = dynamic_cast<Struct *> (parser.createTerm());
-  ASSERT_EQ(".(2,.(1,[]))",s->symbol());
+  ASSERT_EQ(".(2, .(1, []))",s->symbol());
   ASSERT_EQ(2,s->arity());
   ASSERT_EQ("2",s->args(0)->symbol());
   ASSERT_EQ(".(1, [])",s->args(1)->symbol());
@@ -231,7 +230,7 @@ TEST_F(ParserTest, parseStructOfStructAllTheWay2) {
   Parser parser(scanner);
   vector<Term*> terms = parser.getArgs();
   ASSERT_EQ("s(s(s(s(1))))", terms[0]->symbol());
-  ASSERT_EQ("b(1,2,3)", terms[1]->symbol());
+  ASSERT_EQ("b(1, 2, 3)", terms[1]->symbol());
 }
 
 
@@ -266,7 +265,7 @@ TEST_F(ParserTest, listOfTermsThree) {
 TEST_F(ParserTest, parseStructTwoArgs) {
   Scanner scanner("point(11,12)");
   Parser parser(scanner);
-  ASSERT_EQ("point(11,12)",parser.createTerm()->symbol());
+  ASSERT_EQ("point(11, 12)",parser.createTerm()->symbol());
 }
 
 
@@ -277,7 +276,7 @@ TEST_F(ParserTest, parseStructTwoArgs) {
 TEST_F(ParserTest, parseStructDOTSTwoArgs) {
   Scanner scanner("...(11,12)");
   Parser parser(scanner);
-  ASSERT_EQ("...(11,12)",parser.createTerm()->symbol());
+  ASSERT_EQ("...(11, 12)",parser.createTerm()->symbol());
 }
 
 

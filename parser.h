@@ -16,39 +16,40 @@ using std::vector;
 class Parser{
 public:
   Parser(Scanner scanner) : _scanner(scanner){}
+
   Term* createTerm(){
     int token = _scanner.nextToken();
     if(token == VAR){
       return new Variable(symtable[_scanner.tokenValue()].first);
     }else if(token == NUMBER){
       return new Number(_scanner.tokenValue());
-    }else if(token == ATOM){
+    }else if(token == ATOM || token == ATOMSC){
         Atom* atom = new Atom(symtable[_scanner.tokenValue()].first);
-        if((token = _scanner.nextToken()) == '(' ) {
+        if((token = _scanner.nextToken()) == '(') {
           vector<Term*> terms = getArgs();
           if(_currentToken == ')')
             return new Struct(*atom, terms);
         }
         else if(_currentToken == '('){
-          _scanner.fallback(1);
-          return new Struct(*atom);
+			_scanner.fallback(1);
+            return new Struct(*atom);
         }else if(_currentToken == ']'){
-          throw string("unexpected token");
-        }
-        else
-          _scanner.fallback(1);
+            throw string("unexpected token");
+        }else
+            _scanner.fallback(1);
+
         return atom;
     }else if(token == '['){
-      std::vector<Term*> terms = getArgs();
-      if(_currentToken == ']'){
-        return new List(terms);
-      }else if(_currentToken == ')'){
-        throw string("unexpected token");
-      }else{
-        _scanner.fallback(1);
-        return new List();
-      }
-    }
+		vector<Term*> terms = getArgs();
+		if(_currentToken == ']'){
+			return new List(terms);
+        }else if(_currentToken == ')'){
+            throw string("unexpected token");
+        }else{
+            _scanner.fallback(1);
+			return new List();
+		}
+	}
     return NULL;
   }
 
@@ -65,6 +66,7 @@ public:
     }
     return args;
   }
+
 
 private:
   Scanner _scanner;
