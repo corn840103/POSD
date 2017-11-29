@@ -80,9 +80,6 @@ public:
     return buffer[pos++];
   }
 
-  void fallback(int p){
-    pos -= p;
-  }
 private:
   string buffer;
   int pos;
