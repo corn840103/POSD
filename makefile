@@ -25,7 +25,11 @@ list.o:list.cpp list.h
 #	g++ -std=c++11 -c mainExp.cpp
 
 hw6: mainScanner.o atom.o list.o scanner.h utScanner.h utParser.h parser.h
+ifeq (${OS}, Windows_NT)
+	g++ -o hw6 mainScanner.o atom.o list.o -lgtest
+else
 	g++ -o hw6 mainScanner.o atom.o list.o -lgtest -lpthread
+endif
 mainScanner.o: mainScanner.cpp utScanner.h scanner.h  atom.h struct.h variable.h  utParser.h parser.h
 		g++ -std=gnu++0x -c mainScanner.cpp
 utIterator: mainIterator.o atom.o list.o iterator.h
