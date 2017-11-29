@@ -1,4 +1,4 @@
-all: madRace utAtom utVariable utScanner
+all: hw6
 
 madRace: mainMadRace.o
 	g++ -o madRace mainMadRace.o -lgtest -lpthread
@@ -24,8 +24,8 @@ list.o:list.cpp list.h
 #mainExp.o: mainExp.cpp exp.h global.h
 #	g++ -std=c++11 -c mainExp.cpp
 
-utScanner: mainScanner.o atom.o list.o scanner.h utScanner.h utParser.h parser.h
-	g++ -o utScanner mainScanner.o atom.o list.o -lgtest -lpthread
+hw6: mainScanner.o atom.o list.o scanner.h utScanner.h utParser.h parser.h
+	g++ -o hw6 mainScanner.o atom.o list.o -lgtest -lpthread
 mainScanner.o: mainScanner.cpp utScanner.h scanner.h  atom.h struct.h variable.h  utParser.h parser.h
 		g++ -std=c++11 -c mainScanner.cpp
 utIterator: mainIterator.o atom.o list.o iterator.h
