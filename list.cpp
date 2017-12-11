@@ -4,7 +4,20 @@
 #include <iostream>
 #include <string>
 #include "list.h"
+#include "iterator.h"
 using std::vector;
+
+Iterator <Term*>* List::createIterator(){
+  return new ListIterator <Term*>(this);
+}
+
+Iterator <Term*>* List::createDFSIterator(){
+  return new DFSIterator <Term*>(this);
+}
+
+Iterator <Term*>* List::createBFSIterator(){
+  return new BFSIterator <Term*>(this);
+}
 
 string List::symbol() const{
     string ret ;
@@ -55,15 +68,15 @@ bool List::match(Term & term) {
     else if(typeid(term) == typeid(Variable)){
         bool ret =true;
         for(int i = 0 ; i < _elements.size() ;i++ ){
-        if(_elements[i]->symbol() ==  term.symbol()){
+          if(_elements[i]->symbol() ==  term.symbol()){
             if( _elements[i]->symbol() == term.symbol() ){
                 ret= false;
                 return ret;
             }
-        ret = _elements[i]->match(term) ;
-        }
-        if(ret == false)
-                return ret;
+            ret = _elements[i]->match(term) ;
+          }
+          if(ret == false)
+              return ret;
         }
         return ret;
     }
