@@ -1,29 +1,53 @@
 #include "struct.h"
 #include "iterator.h"
 
-Iterator <Term*>* Struct::createIterator(){
-  return new StructIterator <Term*>(this);
+
+string Struct::symbol() const{
+	if(_argc.empty()){
+		return _name.symbol() + "()";
+	}
+	string sym = "";
+	for(unsigned int i = 0;i < _argc.size() - 1;i++){
+		sym += (_argc[i]->symbol() + ", ");
+	}
+	return _name.symbol() + "(" + sym  + _argc[_argc.size() - 1]->symbol() + ")";
 }
 
-Iterator <Term*>* Struct::createBFSIterator(){
-  return new BFSIterator <Term*>(this);
+string Struct::value() const{
+    if(_argc.empty()){
+        return _name.symbol() + "()";
+    }
+	string sym = "";
+	for(unsigned int i = 0;i < _argc.size() - 1;i++){
+		sym += (_argc[i]->value() + ", ");
+	}
+	return _name.symbol() + "(" + sym  + _argc[_argc.size() - 1]->value() + ")";
 }
 
-Iterator <Term*>* Struct::createDFSIterator(){
-  return new DFSIterator <Term*>(this);
+bool Struct::match(Term &term){
+	Struct *st = dynamic_cast<Struct *> (&term);
+		if(st){
+			if(!_name.match(st->_name))
+				return false;
+			if(_argc.size() != st->_argc.size())
+				return false;
+			for(unsigned int i = 0;i < _argc.size();i++){
+				if(_argc[i]->symbol() != st->_argc[i]->symbol())
+					return false;
+			}
+			return true;
+		}
+		return Term::match(term);
+}
+		
+Iterator<Term*> * Struct::createIterator(){
+   return new StructIterator<Term*>(this);
 }
 
-bool Struct::match( Term &term ){
-  return false;
+Iterator<Term*> * Struct::createBFSIterator(){
+  return new BFSIterator<Term*>(this);
 }
 
-string Struct::symbol() const {
-  if(_args.empty())
-    return _name.symbol() + "()";
-    string ret = _name.symbol() + "(";
-    std::vector<Term *>::const_iterator it = _args.begin();
-    for(; it != _args.end()-1; ++it)
-      ret += (*it)->symbol()+", ";
-    ret += (*it)->symbol()+")";
-    return ret;
+Iterator<Term*> * Struct::createDFSIterator(){
+  return new DFSIterator<Term*>(this);
 }

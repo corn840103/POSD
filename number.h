@@ -1,19 +1,22 @@
 #ifndef NUMBER_H
 #define NUMBER_H
-
-#include "atom.h"
+#include <iostream>
 #include <string>
 #include <sstream>
-using std::string;
-using std::ostringstream;
+#include "term.h"
 
-class Number : public Term{
-public:
-    Number(double db){
-        std::ostringstream strs;
-        strs << db;
-        _symbol = strs.str();
-    }
+
+
+using std::string;
+using std::to_string;
+
+class Number :public Term{ 
+	public:
+		Number (double value){
+			std::stringstream ss ;
+			ss << value;
+			_symbol = ss.str();
+		} 
 };
 
 #endif

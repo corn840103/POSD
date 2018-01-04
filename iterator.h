@@ -3,26 +3,25 @@
 
 #include "struct.h"
 #include "list.h"
-using namespace std;
-#include <vector>
-#include <stack>
+#include "atom.h"
+#include "term.h"
 #include <queue>
 #include <iostream>
-#include <algorithm>
+#include <typeinfo>
 
-template <class T>
+template<class T>
 class Iterator {
 public:
   virtual void first() = 0;
   virtual void next() = 0;
-  virtual Term* currentItem() const = 0;
+  virtual T currentItem() const = 0;
   virtual bool isDone() const = 0;
 };
 
-template <class T>
-class NullIterator :public Iterator <T>{
+template<class T>
+class NullIterator :public Iterator<T>{
 public:
-  NullIterator(Term *n){}
+  NullIterator(T n){}
   void first(){}
   void next(){}
   T currentItem() const{
@@ -34,8 +33,8 @@ public:
 
 };
 
-template <class T>
-class StructIterator :public Iterator <T>{
+template<class T>
+class StructIterator :public Iterator<T> {
 public:
   friend class Struct;
   void first() {
@@ -59,11 +58,11 @@ private:
   Struct* _s;
 };
 
-template <class T>
+template<class T>
 class ListIterator :public Iterator<T> {
 public:
-  ListIterator(List *list): _index(0), _list(list) {}
-
+  friend class List;
+ 
   void first() {
     _index = 0;
   }
@@ -80,94 +79,93 @@ public:
     _index++;
   }
 private:
+  ListIterator(List *list): _index(0), _list(list) {}
   int _index;
   List* _list;
 };
 
-template <class T>
-class DFSIterator : public Iterator<T>{
-public:
-    DFSIterator(T term):_term(term),_index(0){}
+template<class T>
+class BFSIterator :public Iterator<T>{
+  public:
+  BFSIterator(T term): _term(term){}
 
-    void first(){
-        _index = 0;
-        T term;
-        stack.push(_term);
+  void first() {
+    _element.push(_term);    //init
+	  convertToBFS(_term);    //to BFS traversal
+  }
 
-        while(!stack.empty()){
-            term = stack.top();
-            stack.pop();
-            if(_term != term){
-                _dfs.push_back(term);
-            }
+  T currentItem() const {
+    return _BFS.front();
+  }
 
-            Iterator <T>* it = term->createIterator();
+  bool isDone() const {
+    return  _BFS.empty();
+  }
 
-            re.clear();
-            for(it->first(); !it->isDone(); it->next()){
-                re.push_back(it->currentItem());
-            }
-            int i = re.size()-1;
-            while(i != -1){
-                stack.push(re[i]);
-                i--;
-            }
-        }
-    }
-    void next(){
-        _index++;
-    }
-    T currentItem() const{
-        return _dfs[_index];
-    }
-    bool isDone() const{
-        return _index >= _dfs.size();
-    }
+  void next() {
+    _BFS.pop();
+  }
+  
+  void convertToBFS(T term){
+	 _element.pop();
+	 Iterator<T> * it = term->createIterator();
+	 for(it->first();!it->isDone();it->next()){
+		 T currentTerm = it->currentItem();
+		 if (typeid(*currentTerm) ==  typeid(Struct) || typeid(*currentTerm) ==  typeid(List)){
+			 _element.push(currentTerm);
+		 }
+		_BFS.push(currentTerm);
+	 }
+	 if(!_element.empty()){
+		convertToBFS(_element.front());
+	 }
+  }
+  
 private:
-    std::vector<T> _dfs;
-    std::stack<T> stack;
-    std::vector<T> re;
-    T _term;
-    int _index;
+  T _term;
+  std::queue <T> _BFS;
+  std::queue <T> _element;
+  
 };
 
-template <class T>
-class BFSIterator : public Iterator<T>{
+template<class T>
+class DFSIterator :public Iterator<T>{
 public:
-    BFSIterator(T term):_term(term),_index(0){}
+DFSIterator(T term):_index(0), _term(term){}
 
-    void first(){
-        _index = 0;
-        T term;
-        queue.push(_term);
+void first() {
+  convertToDFS(_term); //to DFS traversal 
+  _index = 0;  
+}
 
-        while(!queue.empty()){
-            term = queue.front();
-            queue.pop();
-            if(_term != term){
-                _bfs.push_back(term);
-            }
+T currentItem() const {
+  return _DFS[_index];
+}
 
-            Iterator <T>* it = term->createIterator();
-            for(it->first(); !it->isDone(); it->next()){
-                queue.push(it->currentItem());
-            }
-        }
-    }
-    void next(){
-        _index++;
-    }
-    T currentItem() const{
-        return _bfs[_index];
-    }
-    bool isDone() const{
-        return _index >= _bfs.size();
-    }
+bool isDone() const {
+  return _index >= (int)_DFS.size();
+}
+
+void next() {
+  _index++;
+}
+
+void convertToDFS(T term){
+	Iterator<T> * it = term->createIterator();
+	for(it->first();!it->isDone();it->next()){
+		T currentTerm = it->currentItem();
+		_DFS.push_back(currentTerm);
+		if (typeid(*currentTerm) ==  typeid(Struct) || typeid(*currentTerm) ==  typeid(List)){
+			 convertToDFS(currentTerm);
+		}
+	}
+}
+
 private:
-    std::vector<T> _bfs;
-    std::queue<T> queue;
-    T _term;
-    int _index;
+int _index;
+T _term;
+std::vector <T> _DFS;
 };
+
 
 #endif

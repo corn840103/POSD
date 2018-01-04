@@ -16,11 +16,13 @@ const int NUMBER = 256;
 const int ATOM = 257;
 const int ATOMSC = 258;
 const int VAR = 259;
+//const int EQUALITY = 260;
 
 #include <vector>
 using std::vector;
 
 vector<pair<string, int>> symtable;
+vector<string> table;
 
 bool isSpecialCh(char c) {
   return c == '+'
